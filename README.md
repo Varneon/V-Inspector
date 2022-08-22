@@ -1,2 +1,2 @@
-# Repository-Template-Unity
-Template repository for Unity
+# V-Inspector
+Unity Editor toolkit for creating custom inspectors powered by UIElements
