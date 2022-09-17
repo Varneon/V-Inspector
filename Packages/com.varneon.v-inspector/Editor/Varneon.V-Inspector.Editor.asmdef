@@ -1,7 +1,7 @@
 {
-    "name": "Varneon.V-Inspector",
+    "name": "Varneon.V-Inspector.Editor",
     "references": [
-        "Varneon.V-Inspector.Attributes"
+        "Varneon.V-Inspector.Runtime"
     ],
     "includePlatforms": [
         "Editor"
