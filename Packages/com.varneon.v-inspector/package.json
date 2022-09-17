@@ -2,5 +2,9 @@
   "name": "com.varneon.v-inspector",
   "version": "0.0.1",
   "displayName": "V-Inspector",
-  "description": "Custom inspector toolkit for creating custom editors powered by UIToolkit"
+  "description": "Custom inspector toolkit for creating custom editors powered by UIToolkit",
+  "author": {
+    "name": "Varneon",
+    "url": "https://github.com/Varneon"
+  }
 }
