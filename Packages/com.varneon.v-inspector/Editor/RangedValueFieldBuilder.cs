@@ -10,17 +10,13 @@ namespace Varneon.VInspector
     {
         public static VisualElement Build(UnityEngine.Object target, SerializedProperty property, RangeAttribute rangeAttribute, string customName = null, string tooltip = null)
         {
-            VisualElement newField = new VisualElement();
-
-            newField.style.flexDirection = FlexDirection.Row;
-
             VisualElement slider;
 
             VisualElement valueField;
 
             string valueType = property.type;
 
-            if(valueType == "float")
+            if (valueType == "float")
             {
                 slider = new Slider(customName ?? property.displayName, rangeAttribute.min, rangeAttribute.max);
 
@@ -32,7 +28,7 @@ namespace Varneon.VInspector
                 valueField = new FloatField(string.Empty);
                 ((INotifyValueChanged<float>)valueField).RegisterValueChangedCallback(a => ((INotifyValueChanged<float>)valueField).SetValueWithoutNotify(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max)));
             }
-            else if(valueType == "int")
+            else if (valueType == "int")
             {
                 slider = new SliderInt(customName ?? property.displayName, (int)rangeAttribute.min, (int)rangeAttribute.max);
 
@@ -52,15 +48,17 @@ namespace Varneon.VInspector
 
             slider.Q<Label>().RegisterPrefabPropertyOverrideContextClickEvent(target, property);
 
-            newField.Add(slider);
-
             valueField.style.width = new StyleLength(50f);
+
+            valueField.style.marginBottom = 0;
+            valueField.style.marginRight = 0;
+            valueField.style.marginTop = 0;
 
             ((BindableElement)valueField).BindProperty(property);
 
-            newField.Add(valueField);
+            slider.Add(valueField);
 
-            return newField;
+            return slider;
         }
     }
 }
