@@ -169,6 +169,14 @@ namespace Varneon.VInspector
                         {
                             newField.tooltip = tooltip;
                         }
+
+                        // If the field type is an array, register callbacks for receiving objects via drag and drop
+                        if (fieldType.IsArray)
+                        {
+                            newField.RegisterCallback<DragUpdatedEvent>((e) => { DragAndDrop.visualMode = DragAndDrop.objectReferences.Length > 0 ? DragAndDropVisualMode.Copy : DragAndDropVisualMode.Rejected; });
+
+                            newField.RegisterCallback<DragPerformEvent>((e) => { TryAddDragAndDropArrayValues(fieldType.GetElementType(), property); });
+                        }
                     }
 
                     // Add the new field to the field's parent
@@ -180,6 +188,41 @@ namespace Varneon.VInspector
             OnInspectorFieldsGenerated(rootVisualElement);
 
             return rootVisualElement;
+        }
+
+        /// <summary>
+        /// Tries to add objects being dragged and dropped into a SerializedProperty array
+        /// </summary>
+        /// <param name="arrayElementType">Type of the elements in the array</param>
+        /// <param name="property">SerializedProperty of the array for adding elements into</param>
+        private static void TryAddDragAndDropArrayValues(Type arrayElementType, SerializedProperty property)
+        {
+            property.serializedObject.Update();
+
+            foreach (UnityEngine.Object obj in DragAndDrop.objectReferences)
+            {
+                Type objectType = obj.GetType();
+
+                if (objectType.Equals(typeof(GameObject)) && arrayElementType != typeof(GameObject))
+                {
+                    foreach (UnityEngine.Object component in ((GameObject)obj).GetComponents(arrayElementType))
+                    {
+                        property.arraySize++;
+
+                        property.GetArrayElementAtIndex(property.arraySize - 1).objectReferenceValue = component;
+                    }
+                }
+                else if (objectType.IsAssignableFrom(arrayElementType))
+                {
+                    property.arraySize++;
+
+                    property.GetArrayElementAtIndex(property.arraySize - 1).objectReferenceValue = obj;
+                }
+            }
+
+            property.serializedObject.ApplyModifiedProperties();
+
+            DragAndDrop.AcceptDrag();
         }
 
         protected virtual void OnInspectorVisualTreeAssetCloned(VisualElement root) { }
