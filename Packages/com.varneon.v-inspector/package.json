@@ -1,6 +1,6 @@
 {
   "name": "com.varneon.v-inspector",
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0",
   "displayName": "V-Inspector",
   "description": "Custom inspector toolkit for creating custom editors powered by UIToolkit",
   "author": {
