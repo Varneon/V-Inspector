@@ -26,14 +26,14 @@ namespace Varneon.VInspector
                 }
 
                 valueField = new FloatField(string.Empty);
-                ((INotifyValueChanged<float>)valueField).RegisterValueChangedCallback(a => ((INotifyValueChanged<float>)valueField).SetValueWithoutNotify(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max)));
+                ((INotifyValueChanged<float>)valueField).RegisterValueChangedCallback(a => ((INotifyValueChanged<float>)slider).SetValueWithoutNotify(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max)));
             }
             else if (valueType == "int")
             {
                 slider = new SliderInt(customName ?? property.displayName, (int)rangeAttribute.min, (int)rangeAttribute.max);
 
                 valueField = new IntegerField(string.Empty);
-                ((INotifyValueChanged<int>)valueField).RegisterValueChangedCallback(a => ((INotifyValueChanged<int>)valueField).SetValueWithoutNotify(Convert.ToInt32(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max))));
+                ((INotifyValueChanged<int>)valueField).RegisterValueChangedCallback(a => ((INotifyValueChanged<int>)slider).SetValueWithoutNotify(Convert.ToInt32(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max))));
             }
             else
             {
