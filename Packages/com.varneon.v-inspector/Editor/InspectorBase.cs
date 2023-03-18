@@ -38,7 +38,7 @@ namespace Varneon.VInspector
             rootVisualElement.Clear();
 
             // Clone the visual tree asset
-            inspectorUxml.CloneTree(rootVisualElement);
+            if (inspectorUxml) { inspectorUxml.CloneTree(rootVisualElement); }
 
             // Invoke the virtual method for when visual tree asset has been cloned
             OnInspectorVisualTreeAssetCloned(rootVisualElement);
