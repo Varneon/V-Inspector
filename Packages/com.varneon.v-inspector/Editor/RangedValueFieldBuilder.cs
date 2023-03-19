@@ -46,8 +46,6 @@ namespace Varneon.VInspector
 
             ((BindableElement)slider).BindProperty(property);
 
-            slider.Q<Label>().RegisterPrefabPropertyOverrideContextClickEvent(target, property);
-
             valueField.style.width = new StyleLength(50f);
 
             valueField.style.marginBottom = 0;
