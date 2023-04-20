@@ -159,7 +159,7 @@ namespace Varneon.VInspector
                     // If the field has a range attribute and the type has an override field, use it instead of the default property field
                     if (rangedValueFieldTypes.Contains(fieldType) && hasRangeAttribute)
                     {
-                        newField = RangedValueFieldBuilder.Build(target, property, field.GetCustomAttribute<RangeAttribute>(), customLabel, tooltip);
+                        newField = RangedValueFieldBuilder.Build(property, field.GetCustomAttribute<RangeAttribute>(), customLabel, tooltip);
                     }
                     else
                     {

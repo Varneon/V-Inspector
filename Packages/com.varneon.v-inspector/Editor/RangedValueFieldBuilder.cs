@@ -8,7 +8,7 @@ namespace Varneon.VInspector
 {
     public static class RangedValueFieldBuilder
     {
-        public static VisualElement Build(UnityEngine.Object target, SerializedProperty property, RangeAttribute rangeAttribute, string customName = null, string tooltip = null)
+        public static VisualElement Build(SerializedProperty property, RangeAttribute rangeAttribute, string customName = null, string tooltip = null)
         {
             VisualElement slider;
 
@@ -18,22 +18,43 @@ namespace Varneon.VInspector
 
             if (valueType == "float")
             {
-                slider = new Slider(customName ?? property.displayName, rangeAttribute.min, rangeAttribute.max);
+                slider = new Slider(string.Empty, rangeAttribute.min, rangeAttribute.max);
 
                 if (!string.IsNullOrEmpty(tooltip))
                 {
                     slider.tooltip = tooltip;
                 }
 
-                valueField = new FloatField(string.Empty);
-                ((INotifyValueChanged<float>)valueField).RegisterValueChangedCallback(a => ((INotifyValueChanged<float>)slider).SetValueWithoutNotify(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max)));
+                valueField = new FloatField(customName ?? property.displayName);
+
+                ((FloatField)valueField).labelElement.AddToClassList("unity-property-field__label");
+
+                ((FloatField)valueField).RegisterValueChangedCallback(a =>
+                {
+                    if(a.newValue > rangeAttribute.max) { ((FloatField)valueField).value = rangeAttribute.max; }
+                    else if (a.newValue < rangeAttribute.min) { ((FloatField)valueField).value = rangeAttribute.min; }
+
+                    ((BaseSlider<float>)slider).SetValueWithoutNotify(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max));
+                });
+
+                ((BaseSlider<float>)slider).RegisterValueChangedCallback(a => ((FloatField)valueField).SetValueWithoutNotify(a.newValue));
             }
             else if (valueType == "int")
             {
-                slider = new SliderInt(customName ?? property.displayName, (int)rangeAttribute.min, (int)rangeAttribute.max);
+                slider = new SliderInt(string.Empty, (int)rangeAttribute.min, (int)rangeAttribute.max);
 
-                valueField = new IntegerField(string.Empty);
-                ((INotifyValueChanged<int>)valueField).RegisterValueChangedCallback(a => ((INotifyValueChanged<int>)slider).SetValueWithoutNotify(Convert.ToInt32(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max))));
+                valueField = new IntegerField(customName ?? property.displayName);
+
+                ((IntegerField)valueField).labelElement.AddToClassList("unity-property-field__label");
+
+                ((IntegerField)valueField).RegisterValueChangedCallback(a => {
+                    if (a.newValue > rangeAttribute.max) { ((IntegerField)valueField).value = Convert.ToInt32(rangeAttribute.max); }
+                    else if (a.newValue < rangeAttribute.min) { ((IntegerField)valueField).value = Convert.ToInt32(rangeAttribute.min); }
+
+                    ((BaseSlider<int>)slider).SetValueWithoutNotify(Convert.ToInt32(Mathf.Clamp(a.newValue, rangeAttribute.min, rangeAttribute.max)));
+                });
+
+                ((BaseSlider<int>)slider).RegisterValueChangedCallback(a => ((IntegerField)valueField).SetValueWithoutNotify(a.newValue));
             }
             else
             {
@@ -42,21 +63,48 @@ namespace Varneon.VInspector
                 return !string.IsNullOrEmpty(customName) ? new PropertyField(property, customName) : new PropertyField(property);
             }
 
+            valueField.name = "unity-input-" + property.propertyPath;
+
+            ((BindableElement)slider).bindingPath = property.propertyPath;
+
+            ((BindableElement)valueField).bindingPath = property.propertyPath;
+
             slider.style.flexGrow = 1;
 
-            ((BindableElement)slider).BindProperty(property);
+            VisualElement valueInput = valueField.Q("unity-text-input");
 
-            valueField.style.width = new StyleLength(50f);
+            valueInput.style.flexGrow = 0;
+            valueInput.style.flexShrink = 1;
 
-            valueField.style.marginBottom = 0;
-            valueField.style.marginRight = 0;
-            valueField.style.marginTop = 0;
+            valueInput.style.width = new StyleLength(50f);
 
-            ((BindableElement)valueField).BindProperty(property);
+            valueInput.style.marginBottom = 0;
+            valueInput.style.marginRight = 0;
+            valueInput.style.marginTop = 0;
 
-            slider.Add(valueField);
+            valueField.Insert(1, slider);
 
-            return slider;
+            Label label = valueField.Q<Label>();
+
+            label.RegisterCallback<MouseUpEvent>((evt) =>
+            {
+                if (evt.button != 1)
+                {
+                    return;
+                }
+
+                property.serializedObject.Update();
+
+                GenericMenu genericMenu = (GenericMenu)typeof(EditorGUI).GetMethod("FillPropertyContextMenu", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).Invoke(null, new object[] { property, null, null });
+                Vector2 vector = new Vector2(label.layout.xMin, label.layout.height);
+                vector = label.LocalToWorld(vector);
+                Rect position = new Rect(vector, Vector2.zero);
+                genericMenu.DropDown(position);
+                evt.PreventDefault();
+                evt.StopPropagation();
+            });
+
+            return valueField;
         }
     }
 }
