@@ -1,0 +1,7 @@
+.unity-foldout {
+    margin-left: 16px;
+}
+
+.unity-toggle {
+    margin-top: 3px;
+}
